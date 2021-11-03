@@ -1,28 +1,26 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Search from "../../components/Search";
-import { useLocateCep } from "../../providers/CepProvider";
+import Providers from "../../providers";
+import MockAdapter from "axios-mock-adapter";
+import api from "../../services";
 
 const handleSearch = jest.fn();
 
+const apiMock = new MockAdapter(api);
+
 describe("testando componente search", () => {
-  it("impossivel fazer pesquisa com campo vazio", () => {
-    render(<Search />);
-
-    const inputFild = screen.getByPlaceholderText("Insira o CEP");
-    const buttonElement = screen.getByText("Buscar pelo CEP");
-
-    fireEvent.change(inputFild, { target: { value: "" } });
-    expect(buttonElement).not.toBeEnabled();
-  });
-
   it("botao de pesquisa habilidado caso tenha algo no input", async () => {
-    render(<Search />);
+    render(
+      <Providers>
+        <Search />
+      </Providers>
+    );
 
     const inputFild = screen.getByPlaceholderText("Insira o CEP");
     const buttonElement = screen.getByText("Buscar pelo CEP");
 
-    fireEvent.change(inputFild, { target: { value: 12345678 } });
+    fireEvent.change(inputFild, { target: { value: "12345678" } });
 
     await waitFor(() => {
       expect(inputFild).toHaveValue(12345678);
@@ -31,12 +29,17 @@ describe("testando componente search", () => {
   });
 
   it("possivel fazer uma busca pelo cep fornecido", async () => {
-    render(<Search />);
+    apiMock.onGet("12345678").replyOnce(200, {});
+    render(
+      <Providers>
+        <Search />
+      </Providers>
+    );
 
     const inputFild = screen.getByPlaceholderText("Insira o CEP");
     const buttonElement = screen.getByText("Buscar pelo CEP");
 
-    fireEvent.change(inputFild, { target: { value: 12345678 } });
+    fireEvent.change(inputFild, { target: { value: "12345678" } });
     fireEvent.click(buttonElement);
 
     await waitFor(() => {
