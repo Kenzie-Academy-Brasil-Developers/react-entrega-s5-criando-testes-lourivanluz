@@ -40,7 +40,7 @@ interface LocationData {
   handleSearch: (local: string) => void;
 }
 
-const LocateCepContext = createContext<LocationData>({} as LocationData);
+export const LocateCepContext = createContext<LocationData>({} as LocationData);
 
 export const LocateCepProvider = ({ children }: ILocationProps) => {
   const [ceps, setCeps] = useState({} as ILocation);
